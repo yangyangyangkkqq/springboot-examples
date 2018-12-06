@@ -1,5 +1,7 @@
 package com.example.springboot;
 
+import com.example.springboot.entity.User;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,5 +18,9 @@ public class RedisTest {
     public void redis(){
         redisTemplate.opsForValue().set("key1","value1");
         System.out.println(redisTemplate.opsForValue().get("key1"));
+
+        User user = new User("超人", 20);
+        redisTemplate.opsForValue().set(user.getName(), user);
+        System.out.println(redisTemplate.opsForValue().get("超人"));
     }
 }

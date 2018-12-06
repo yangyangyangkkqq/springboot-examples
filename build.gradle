@@ -34,6 +34,9 @@ dependencies {
     implementation('org.springframework.boot:spring-boot-starter-data-redis')
     implementation("com.h2database:h2:1.4.195")
     implementation('org.springframework.boot:spring-boot-starter-security')
-    implementation('org.springframework.boot:spring-boot-starter-redis')
+    implementation('org.springframework.boot:spring-boot-starter-cache')
+//    implementation('net.sf.ehcache:ehcache')
+    // https://mvnrepository.com/artifact/org.slf4j/slf4j-api
+    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
     testImplementation('org.springframework.boot:spring-boot-starter-test')
 }
