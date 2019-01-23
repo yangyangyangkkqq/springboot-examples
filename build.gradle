@@ -1,6 +1,7 @@
 buildscript {
     ext {
-        springBootVersion = '2.1.0.RELEASE'
+        springBootVersion = '2.0.0.RELEASE'
+        springCloudVersion = 'Finchley.SR1'
     }
     repositories {
         mavenCentral()
@@ -23,10 +24,16 @@ repositories {
     mavenCentral()
 }
 
+dependencyManagement {
+    imports {
+        //spring bom helps us to declare dependencies without specifying version numbers.
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
 
 dependencies {
     implementation('org.springframework.boot:spring-boot-starter-web')
-    implementation('org.springframework.boot:spring-boot-starter-actuator')
+//    implementation('org.springframework.boot:spring-boot-starter-actuator')
     implementation('org.springframework.boot:spring-boot-starter-thymeleaf')
     implementation('io.springfox:springfox-swagger2:2.7.0', 'io.springfox:springfox-swagger-ui:2.7.0')
     implementation('org.springframework.boot:spring-boot-starter-jdbc')
@@ -37,6 +44,7 @@ dependencies {
     implementation('org.springframework.boot:spring-boot-starter-cache')
 //    implementation('net.sf.ehcache:ehcache')
     // https://mvnrepository.com/artifact/org.slf4j/slf4j-api
-    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
+    implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
+    implementation('org.springframework.cloud:spring-cloud-starter-netflix-eureka-client')
     testImplementation('org.springframework.boot:spring-boot-starter-test')
 }
