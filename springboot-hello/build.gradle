@@ -1,0 +1,56 @@
+plugins {
+    id 'org.springframework.boot' version '2.1.5.RELEASE'
+    id 'java'
+}
+
+apply plugin: 'io.spring.dependency-management'
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:Finchley.RELEASE"
+        mavenBom "de.codecentric:spring-boot-admin-starter-server:2.0.1"
+    }
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-freemarker'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation('org.springframework.boot:spring-boot-starter-jdbc')
+    implementation('org.springframework.boot:spring-boot-starter-data-jpa')
+    implementation('org.springframework.boot:spring-boot-starter-data-redis')
+    implementation("com.h2database:h2:1.4.195")
+    implementation('org.springframework.boot:spring-boot-starter-security')
+    implementation('org.springframework.boot:spring-boot-starter-cache')
+//    implementation('net.sf.ehcache:ehcache')
+    // https://mvnrepository.com/artifact/org.slf4j/slf4j-api
+    implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
+    // eureka依赖
+//    implementation('org.springframework.cloud:spring-cloud-starter-netflix-eureka-client')
+    // Consul依赖
+    implementation('org.springframework.cloud:spring-cloud-starter-consul-discovery')
+    implementation('io.springfox:springfox-swagger2:2.7.0', 'io.springfox:springfox-swagger-ui:2.7.0')
+    //接口监控
+//    implementation('org.springframework.boot:spring-boot-starter-actuator')
+    //jenkinsApi
+    implementation 'com.offbytwo.jenkins:jenkins-client:0.3.8'
+    //netty通信
+    implementation('io.netty:netty-all:4.1.6.Final')
+    compileOnly 'org.projectlombok:lombok'
+    runtimeOnly 'org.springframework.boot:spring-boot-devtools'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}

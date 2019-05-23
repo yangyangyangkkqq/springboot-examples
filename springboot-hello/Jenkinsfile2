@@ -1,0 +1,95 @@
+// Jenkinsfile (Declarative Pipeline)
+def jarName = "dep-dispatch"
+def jarConf = " -Xss1m -XX:NewRatio=4 -XX:ParallelGCThreads=2 -XX:CMSFullGCsBeforeCompaction=5 -XX:+UseCMSCompactAtFullCollection #JAR_ENV_PAR -Duser.timezone=GMT+08"
+pipeline {
+    agent any
+    //使用代理
+//    agent{
+//        docker{
+//            image 'node:7-alpine'
+//        }
+//    }
+//    stages{
+//        stage('test'){
+//            steps{
+//                sh 'node --version'
+//            }
+//        }
+//    }
+    //配置凭据
+//    environment {
+//        SAUCE_ACCESS = credentials('sauce-lab-dev')
+//    }
+    //使用环境变量
+    environment{
+        PATH="/data/pb/gradle-4.6/bin:$PATH"
+    }
+    stages {
+        stage('gradle build'){
+            steps{
+                sh "gradle clean build -x test"
+            }
+        }
+        stage('config'){
+            steps{
+                sh "cp -rf ../pbplatform-config/bls/data.tar.gz ./"
+                sh "cp -rf ./build/libs/pbplatform-${jarName}-1.0-SNAPSHOT.jar ./"
+                sh "mkdir -p /home/compile/project/common_libs/${params.buildVersion}/"
+                sh "cp -rf ./build/libs/pbplatform-${jarName}-1.0-SNAPSHOT.jar /home/compile/project/common_libs/${params.buildVersion}/"
+
+                //supervisor脚本
+                sh "cat <<EOF > blsSupervisor.ini \n" +
+                        "[program:${jarName}] \n" +
+                        "command = java -jar ${jarConf} -Xms128m -Xmx256m /usr/project/pbplatform-${jarName}-1.0-SNAPSHOT.jar \n" +
+                        "startsecs=0 \n" +
+                        "autostart=true \n" +
+                        "autorestart=true \n" +
+                        "stdout_logfile=/var/log/${jarName}.log \n" +
+                        "stderr_logfile=/var/log/${jarName}-error.log \n" +
+                        "EOF\n"
+
+                //dockerfile脚本
+                sh "cat <<EOF >  Dockerfile \n" +
+                        "FROM hub.powerbridge.com:8888/powercloud/pbdockerbase:v3.2 \n" +
+                        "MAINTAINER pengfeima@powerbridge.com \n" +
+                        "ADD pbplatform-${jarName}-1.0-SNAPSHOT.jar /usr/project/ \n" +
+                        "ADD blsSupervisor.ini /etc/supervisor.d/ \n" +
+                        "ADD data.tar.gz /opt/ \n" +
+                        "EOF\n"
+            }
+        }
+        stage('Build') {
+            steps{
+                echo 'Building..'
+                //构建镜像
+                sh "docker build -t dep/${jarName}:${params.buildVersion} ."
+                //为镜像打tag
+                sh "docker tag dep/${jarName}:${params.buildVersion} 172.16.0.41:3333/dep/${jarName}:${params.buildVersion}"
+                //上传到镜像仓库
+                sh "docker push 172.16.0.41:3333/dep/${jarName}:${params.buildVersion}"
+                //删除冗余源镜像
+                sh "docker rmi dep/${jarName}:${params.buildVersion}"
+            }
+        }
+    }
+    post{
+        always{
+            //记录测试结果
+//            archive 'build/libs/**/*.jar'
+//            junit 'build/reports/**/*.xml'
+            //发送邮件
+            emailext(
+                    subject: "${env.JOB_NAME} - Build # ${env.BUILD_NUMBER} - ${currentBuild.currentResult}!",
+                    mimeType: "text/html",
+                    body: '${JELLY_SCRIPT,template="static-analysis"}',
+                    to: 'johnyang@powerbridge.com',
+                    recipientProviders: [[$class: 'DevelopersRecipientProvider'],
+                                         [$class: 'RequesterRecipientProvider']]
+            )
+        }
+    }
+}
+
+//    $PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS!
+//    ${SCRIPT, template="testy.template"}
+//    emailext body: '$DEFAULT_CONTENT', mimeType: 'text/html', postsendScript: '$DEFAULT_POSTSEND_SCRIPT', presendScript: '$DEFAULT_PRESEND_SCRIPT', recipientProviders: [requestor(), developers()], subject: '$DEFAULT_SUBJECT'

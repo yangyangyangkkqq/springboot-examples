@@ -17,28 +17,28 @@ import java.util.concurrent.ThreadPoolExecutor;
 @EnableDiscoveryClient
 @EnableCaching
 @EnableScheduling
-public class SpringbootApplication {
+public class SpringbootHelloApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(SpringbootApplication.class, args);
+        SpringApplication.run(SpringbootHelloApplication.class, args);
     }
 
     @EnableAsync
     @Configuration
     class TaskPoolConfig{
         @Bean("taskExecutor")
-       public Executor taskExecutor(){
-           ThreadPoolTaskExecutor executor=new ThreadPoolTaskExecutor();
-           executor.setCorePoolSize(10);
-           executor.setMaxPoolSize(20);
-           executor.setQueueCapacity(200);
-           executor.setKeepAliveSeconds(60);
-           executor.setThreadNamePrefix("taskExecutor-");
-           executor.setWaitForTasksToCompleteOnShutdown(true);
-           executor.setAwaitTerminationSeconds(60);
-           executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
-           return executor;
-       }
+        public Executor taskExecutor(){
+            ThreadPoolTaskExecutor executor=new ThreadPoolTaskExecutor();
+            executor.setCorePoolSize(10);
+            executor.setMaxPoolSize(20);
+            executor.setQueueCapacity(200);
+            executor.setKeepAliveSeconds(60);
+            executor.setThreadNamePrefix("taskExecutor-");
+            executor.setWaitForTasksToCompleteOnShutdown(true);
+            executor.setAwaitTerminationSeconds(60);
+            executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+            return executor;
+        }
 
     }
 }

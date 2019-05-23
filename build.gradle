@@ -1,6 +1,8 @@
+//gradle脚本自身需要使用的资源
 buildscript {
+    //全局变量
     ext {
-        springBootVersion = '2.0.0.RELEASE'
+        springBootVersion = '2.0.3.RELEASE'
         springCloudVersion = 'Finchley.SR1'
     }
     repositories {
@@ -11,40 +13,77 @@ buildscript {
     }
 }
 
-apply plugin: 'java'
-apply plugin: 'eclipse'
-apply plugin: 'org.springframework.boot'
-apply plugin: 'io.spring.dependency-management'
+description = "${description}"
 
-group = 'com.example'
-version = '0.0.1-SNAPSHOT'
-sourceCompatibility = 1.8
+//项目需要的资源
+allprojects {
+    apply plugin: 'java'
+    apply plugin: 'idea'
+    apply plugin: 'eclipse'
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
 
-repositories {
-    mavenCentral()
-}
+    group = 'com.example'
+    version = '0.0.1-SNAPSHOT'
 
-dependencyManagement {
-    imports {
-        //spring bom helps us to declare dependencies without specifying version numbers.
-        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    repositories {
+        mavenCentral()
     }
-}
 
-dependencies {
-    implementation('org.springframework.boot:spring-boot-starter-web')
-//    implementation('org.springframework.boot:spring-boot-starter-actuator')
-    implementation('org.springframework.boot:spring-boot-starter-thymeleaf')
-    implementation('io.springfox:springfox-swagger2:2.7.0', 'io.springfox:springfox-swagger-ui:2.7.0')
-    implementation('org.springframework.boot:spring-boot-starter-jdbc')
-    implementation('org.springframework.boot:spring-boot-starter-data-jpa')
-    implementation('org.springframework.boot:spring-boot-starter-data-redis')
-    implementation("com.h2database:h2:1.4.195")
-    implementation('org.springframework.boot:spring-boot-starter-security')
-    implementation('org.springframework.boot:spring-boot-starter-cache')
-//    implementation('net.sf.ehcache:ehcache')
-    // https://mvnrepository.com/artifact/org.slf4j/slf4j-api
-    implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
-    implementation('org.springframework.cloud:spring-cloud-starter-netflix-eureka-client')
-    testImplementation('org.springframework.boot:spring-boot-starter-test')
+    //生成文件统一gradle版本,终端输入gradle wrapper
+    task wrapper(type: Wrapper) {
+        gradleVersion = '4.6'
+    }
+
+    //指定编译Java版本,把compile 依赖 替换为 compileClasspath
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    //打包瘦身
+    bootJar {
+        classifier = 'boot'
+        excludes ["*.jar"]
+    }
+
+    jar {
+        enabled = true
+        baseName "${project.archivesBaseName}"
+    }
+
+    task sourceJar(type: Jar) {
+        baseName "${project.archivesBaseName}"
+        from sourceSets.main.allSource
+    }
+
+    //热部署
+    bootRun {
+        sourceResources sourceSets.main
+        if ( project.hasProperty('jvmArgs') ) {
+            jvmArgs project.jvmArgs.split('\\s+')
+        }
+    }
+
+    //统一多模块的依赖版本
+    dependencyManagement {
+        imports {
+            mavenBom "org.springframework.cloud:spring-cloud-dependencies:Finchley.RELEASE"
+            mavenBom "de.codecentric:spring-boot-admin-starter-server:2.0.1"
+        }
+    }
+
+    dependencies {
+
+    }
+
+    task copyJars(type:Copy) {
+        from configurations.runtime
+        into 'dist'
+    }
+
+    eclipse {
+        project {
+            name = "${rootProject.name}"
+        }
+    }
+
 }
