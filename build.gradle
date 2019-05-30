@@ -66,8 +66,7 @@ allprojects {
     //统一多模块的依赖版本
     dependencyManagement {
         imports {
-            mavenBom "org.springframework.cloud:spring-cloud-dependencies:Finchley.RELEASE"
-            mavenBom "de.codecentric:spring-boot-admin-starter-server:2.0.1"
+            mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
         }
     }
 
