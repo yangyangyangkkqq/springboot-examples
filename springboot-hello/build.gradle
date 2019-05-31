@@ -39,10 +39,10 @@ dependencies {
     // https://mvnrepository.com/artifact/org.slf4j/slf4j-api
     implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
     // eureka依赖
-    implementation('org.springframework.cloud:spring-cloud-starter-netflix-eureka-client')
+//    implementation('org.springframework.cloud:spring-cloud-starter-netflix-eureka-client')
     // Consul依赖
-//    implementation('org.springframework.cloud:spring-cloud-starter-consul-discovery')
-    implementation('io.springfox:springfox-swagger2:2.7.0', 'io.springfox:springfox-swagger-ui:2.7.0')
+    implementation('org.springframework.cloud:spring-cloud-starter-consul-discovery')
+    implementation('io.springfox:springfox-swagger2:2.8.0', 'io.springfox:springfox-swagger-ui:2.8.0')
     //接口监控
 //    implementation('org.springframework.boot:spring-boot-starter-actuator')
     //jenkinsApi
